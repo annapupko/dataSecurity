@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
 from cryptography.fernet import Fernet
+import binascii
 
 img = Image.open("./lena.bmp")
 img = np.array(img)
@@ -11,9 +12,16 @@ block_num_in_a_row = img_len // block_len
 block_num = (img_len / block_len) ** 2
 pixel_in_a_block = block_len ** 2
 
-data = '101111000010101001010101011111000100001000101111010101000100110111001110'
-curr_index = 0
+data = input("enter your massege\n")
+tempp = data
 
+for i in range(len(data)):
+
+    if data[i].isdigit() == False:
+        temp = ''.join(format(ord(i), '08b') for i in data)
+        data = temp
+
+curr_index = 0
 
 key = Fernet.generate_key()
 
@@ -23,8 +31,10 @@ encMessage = fernet.encrypt(data.encode())
 
 print("encrypted : ", encMessage)
 
+
 def get_value(elem):
     return elem[0]
+
 
 summit = []
 for i in range(block_num_in_a_row):
@@ -90,7 +100,6 @@ for i in range(int(block_num_in_a_row)):
 
 with open("lena_with_data.bmp", "wb") as fp:
     Image.fromarray(img).save(fp)
-
 
 # decryption of data
 img_with_data = Image.open("./lena_with_data.bmp")
@@ -168,7 +177,15 @@ data_extracted.sort()
 answer = []
 for i in range(len(data_extracted)):
     answer.append(data_extracted[i][2])
-print("decrypted : ",''.join(answer))
+
+print("decrypted : ", ''.join(answer))
+
+for i in range(len(tempp)):
+    if tempp[i].isdigit() == False:
+        a = ''.join(answer)
+        n = int(a, 2)
+        print(n.to_bytes((n.bit_length() + 7) // 8, 'big').decode())
+        break
+
 with open("lena_recovered.bmp", "wb") as fp:
     Image.fromarray(img_with_data).save(fp)
-
